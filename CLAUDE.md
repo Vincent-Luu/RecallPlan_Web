@@ -89,4 +89,4 @@ npm run db:studio    # 启动 Drizzle Studio
 - **SQLite 持久化**：`db/client.ts` 通过劫持 `sqlDb.run`/`exec`/`prepare` 方法自动检测写操作并延迟 100ms 持久化到磁盘文件，另有 5 秒间隔安全网定时写入；通过 `globalThis.__dbSingleton` 避免 Next.js 热重载时重复创建实例
 - **注册审批流程**：用户通过 `/api/auth/register` 注册后 `status = 'pending'`，需 admin 在设置页通过 `/api/users/[id]` PATCH 审批为 `approved` 后才能正常使用。登录时检查 `status`，`pending` 用户被拒绝登录
 - **20 分钟首次复习**：`TwentyMinButton` 组件对应 `type = 'twenty_min'` 的 taskLog——艾宾浩斯方法的第一次复习（学习后 20 分钟）。组件显示 20 分钟倒计时，倒计时结束前不可打卡，确保学生在最佳时间点完成首次回顾。仅创建当天的任务才会生成此条记录
-- **中国时区**：`lib/chinaDate.ts` 提供 `chinaNow()`（返回 UTC+8 当前时间，依赖部署环境设置 `TZ=Asia/Shanghai`）和 `todayStr()`（使用 `Intl.DateTimeFormat` 显式指定 `timeZone: 'Asia/Shanghai'`，不依赖系统时区，作为"今天是几号"的权威基准）
+- **中国时区**：`lib/chinaDate.ts` 提供 `chinaNow()`（每次调用时通过 `getTimezoneOffset()` 自动检测并补偿到 UTC+8，兼容 Vercel/UTC 服务器和本地开发机）和 `todayStr()`（`Intl.DateTimeFormat` + 显式 `timeZone: 'Asia/Shanghai'`，不依赖系统时区，作为"今天是几号"的权威基准）
