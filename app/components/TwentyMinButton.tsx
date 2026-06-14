@@ -51,7 +51,7 @@ export default function TwentyMinButton({ taskLogId, status, createdAt, onToggle
   if (!mounted) {
     return (
       <button disabled className="mr-2 flex-shrink-0 opacity-60 cursor-not-allowed">
-        <Clock className="w-5 h-5 text-amber-400 dark:text-amber-500" />
+        <Clock className="w-6 h-6 text-amber-400 dark:text-amber-500" />
       </button>
     );
   }
@@ -60,16 +60,20 @@ export default function TwentyMinButton({ taskLogId, status, createdAt, onToggle
   if (isToggling) {
     return (
       <button disabled className="mr-2 flex-shrink-0">
-        <Loader2 className="w-5 h-5 text-amber-400 dark:text-amber-500 animate-spin" />
+        <Loader2 className="w-6 h-6 text-amber-400 dark:text-amber-500 animate-spin" />
       </button>
     );
   }
 
-  // Completed state
+  // Completed state — clickable to undo
   if (status) {
     return (
-      <button disabled className="mr-2 flex-shrink-0">
-        <CheckCircle2 className="w-5 h-5 text-amber-400 dark:text-amber-500" />
+      <button
+        onClick={(e) => { e.stopPropagation(); onToggle(taskLogId, true); }}
+        className="mr-2 focus:outline-none flex-shrink-0 transition-transform hover:scale-110 active:scale-95"
+        title="点击取消打卡"
+      >
+        <CheckCircle2 className="w-6 h-6 text-amber-400 dark:text-amber-500" />
       </button>
     );
   }
@@ -82,7 +86,7 @@ export default function TwentyMinButton({ taskLogId, status, createdAt, onToggle
         className="mr-2 flex-shrink-0 opacity-60 cursor-not-allowed"
         title={`${remainingMinutes}分钟后可打卡`}
       >
-        <Clock className="w-5 h-5 text-amber-400 dark:text-amber-500 animate-pulse" />
+        <Clock className="w-6 h-6 text-amber-400 dark:text-amber-500 animate-pulse" />
       </button>
     );
   }
@@ -94,7 +98,7 @@ export default function TwentyMinButton({ taskLogId, status, createdAt, onToggle
       className="mr-2 focus:outline-none flex-shrink-0 transition-transform hover:scale-110 active:scale-95"
       title="20分钟复习打卡"
     >
-      <Circle className="w-5 h-5 text-amber-500 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300" />
+      <Circle className="w-6 h-6 text-amber-500 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300" />
     </button>
   );
 }

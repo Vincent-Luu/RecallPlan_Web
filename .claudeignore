@@ -1,0 +1,69 @@
+# 依赖
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# 锁文件（体积大，对代码理解无帮助）
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Next.js 构建产物
+/.next/
+/out/
+/build
+
+# 测试
+/coverage
+
+# 环境变量（含密钥，绝不能发送）
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# SQLite 数据库文件
+*.db
+*.db-wal
+*.db-shm
+/data/
+
+# 图片与二进制文件
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.webp
+*.avif
+*.pdf
+
+# macOS
+.DS_Store
+
+# 证书
+*.pem
+
+# 日志
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Git
+.git/
+
+# 许可证（法律文本，无需参与编码）
+LICENSE

@@ -2,9 +2,9 @@
 
 import { useState, useEffect, use, useMemo } from "react";
 import { format } from "date-fns";
-import { ArrowLeft, Trash2, Edit2, Check, X } from "lucide-react";
-import Link from "next/link";
+import { Trash2, Edit2, Check, X } from "lucide-react";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import PageHeader from "@/app/components/PageHeader";
 import { SUBJECT_TAGS, getTagStyle } from "@/app/lib/subjectTags";
 import TaskFilterBar from "./TaskFilterBar";
 
@@ -136,22 +136,11 @@ export default function TaskListPage({ searchParams }: { searchParams: Promise<{
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 transition-colors duration-500">
       
-      {/* Header */}
-      <header className="fixed top-0 inset-x-0 h-16 md:h-24 flex items-center px-4 md:px-12 z-40 bg-white/40 dark:bg-slate-900/60 backdrop-blur-xl border-b border-white/50 dark:border-slate-800 shadow-sm justify-between transition-colors duration-500">
-        <div className="flex items-center">
-          <Link
-            href={targetUserId ? `/settings/user/${targetUserId}/tasks` : "/"}
-            className="flex items-center gap-1.5 md:gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors mr-3 md:mr-6"
-          >
-            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" />
-            <span className="font-medium hidden sm:inline">返回看板</span>
-          </Link>
-          <h1 className="text-lg md:text-3xl font-extrabold text-slate-700 dark:text-slate-100 tracking-tight border-l-2 border-slate-300 dark:border-slate-700 pl-4 md:pl-6 transition-colors">
-            所有任务列表
-            {targetUserId && <span className="ml-4 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full align-middle font-semibold border border-blue-200/50 dark:border-blue-800/50">正在管理用户任务</span>}
-          </h1>
-        </div>
-      </header>
+      <PageHeader
+        backHref={targetUserId ? `/settings/user/${targetUserId}/tasks` : "/"}
+        title="所有任务列表"
+        badge={targetUserId ? <span className="ml-4 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full align-middle font-semibold border border-blue-200/50 dark:border-blue-800/50">正在管理用户任务</span> : undefined}
+      />
 
       {/* Main Layout */}
       <main className="pt-24 md:pt-32 pb-12 px-4 md:px-12 max-w-4xl mx-auto">
