@@ -565,11 +565,11 @@ export default function StatsClient({
                         borderRadius: "12px",
                         fontSize: "13px",
                       }}
-                      formatter={(value: number, name: string) => [
+                      formatter={(value, name) => [
                         value,
                         name === "completed" ? "已完成" : "待完成",
                       ]}
-                      labelFormatter={(label: string) => `${label}`}
+                      labelFormatter={(label) => `${label}`}
                     />
                     <Bar
                       dataKey="completed"
@@ -652,7 +652,7 @@ export default function StatsClient({
                         borderRadius: "12px",
                         fontSize: "13px",
                       }}
-                      formatter={(value: number) => [`${value}%`, "完成率"]}
+                      formatter={(value) => [`${value}%`, "完成率"]}
                     />
                     <Bar
                       dataKey="percentage"
@@ -723,8 +723,8 @@ export default function StatsClient({
                         borderRadius: "12px",
                         fontSize: "13px",
                       }}
-                      formatter={(value: number) => [value, "完成次数"]}
-                      labelFormatter={(label: string) => `${label}日`}
+                      formatter={(value) => [value, "完成次数"]}
+                      labelFormatter={(label) => `${label}日`}
                     />
                     <Area
                       type="monotone"
