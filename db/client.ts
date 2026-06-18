@@ -190,52 +190,7 @@ if (provider === "sqlite") {
   const { drizzle } = require("drizzle-orm/neon-http");
 
   const sql = neon(process.env.DATABASE_URL);
-  const rawDb = drizzle({ client: sql });
-
-  /**
-   * Recursively wraps Drizzle query builders so that .run() is always
-   * available as a no-op passthrough.  Skips Promise protocol methods
-   * (`then`, `catch`, `finally`) to avoid "Promise.prototype.then called
-   * on incompatible receiver" — intercepting them changes the `this`
-   * binding and breaks Drizzle's thenable resolution.
-   */
-  function withRun(result: any): any {
-    if (!result || typeof result !== "object") return result;
-    if ("run" in result) return result;
-
-    return new Proxy(result, {
-      get(target, prop, receiver) {
-        if (prop === "run") return () => target;
-        // Pass through Promise protocol untouched
-        if (prop === "then" || prop === "catch" || prop === "finally") {
-          return Reflect.get(target, prop, receiver);
-        }
-        const value = Reflect.get(target, prop, receiver);
-        if (typeof value === "function") {
-          return function (this: any, ...args: any[]) {
-            return withRun(value.apply(this ?? target, args));
-          };
-        }
-        return value;
-      },
-    });
-  }
-
-  db = new Proxy(rawDb, {
-    get(target, prop, receiver) {
-      // Let Promise protocol pass through on the root `db` object too
-      if (prop === "then" || prop === "catch" || prop === "finally") {
-        return Reflect.get(target, prop, receiver);
-      }
-      const value = Reflect.get(target, prop, receiver);
-      if (typeof value === "function") {
-        return function (this: any, ...args: any[]) {
-          return withRun(value.apply(this ?? target, args));
-        };
-      }
-      return value;
-    },
-  });
+  db = drizzle({ client: sql });
 }
 
 export { db };
