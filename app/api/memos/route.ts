@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../db';
-import { memos } from '../../../db/schema';
-import { eq, desc, isNull } from 'drizzle-orm';
 import { getCurrentUser } from '../../../lib/auth';
+import { memos, userCondition, listMemos, insertMemo } from '../../../db/repository';
 
 export async function GET(request: Request) {
   try {
@@ -11,20 +9,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const targetUserIdStr = searchParams.get('userId');
+    const targetUserId = targetUserIdStr ? parseInt(targetUserIdStr, 10) : undefined;
 
-    let userCondition;
-    if (user.admin && targetUserIdStr) {
-      userCondition = eq(memos.userId, parseInt(targetUserIdStr, 10));
-    } else if (user.admin && user.id === null) {
-      userCondition = isNull(memos.userId);
-    } else {
-      userCondition = eq(memos.userId, user.id as number);
-    }
-
-    const result = await db.select()
-      .from(memos)
-      .where(userCondition)
-      .orderBy(desc(memos.updatedAt));
+    const condition = userCondition(memos, user, targetUserId);
+    const result = await listMemos(condition);
 
     return NextResponse.json(result);
   } catch (error) {
@@ -48,11 +36,13 @@ export async function POST(request: Request) {
       finalUserId = null;
     }
 
-    const newMemo = await db.insert(memos)
-      .values({ title: title.trim(), content: content || '', userId: finalUserId })
-      .returning();
+    const newMemo = await insertMemo({
+      title: title.trim(),
+      content: content || '',
+      userId: finalUserId,
+    });
 
-    return NextResponse.json(newMemo[0], { status: 201 });
+    return NextResponse.json(newMemo, { status: 201 });
   } catch (error) {
     console.error('Error creating memo:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

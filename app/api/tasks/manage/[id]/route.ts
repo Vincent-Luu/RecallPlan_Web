@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../../db';
-import { tasks, taskLogs } from '../../../../../db/schema';
-import { eq, and } from 'drizzle-orm';
 import { getCurrentUser } from '../../../../../lib/auth';
+import {
+  findTaskOwner,
+  deleteTaskLogsByTaskId,
+  deleteTaskById,
+  updateTask,
+} from '../../../../../db/repository';
 
 async function checkTaskOwnership(taskId: number) {
   const user = await getCurrentUser();
   if (!user) return false;
 
-  const [task] = await db.select({ userId: tasks.userId }).from(tasks).where(eq(tasks.id, taskId)).limit(1);
+  const task = await findTaskOwner(taskId);
   if (!task) return false;
 
   if (user.admin) return true; // Admin can edit/delete anything
@@ -23,17 +26,17 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const isOwner = await checkTaskOwnership(taskId);
     if (!isOwner) return NextResponse.json({ error: 'Unauthorized or not found' }, { status: 403 });
 
-    // Drizzle with simple pgTable: Delete logs first due to FK constraint
-    await db.delete(taskLogs).where(eq(taskLogs.taskId, taskId)).run();
-    
-    // Delete the task itself
-    const deletedTask = await db.delete(tasks).where(eq(tasks.id, taskId)).returning();
+    // Delete logs first due to FK constraint
+    await deleteTaskLogsByTaskId(taskId);
 
-    if (deletedTask.length === 0) {
+    // Delete the task itself
+    const deletedTask = await deleteTaskById(taskId);
+
+    if (!deletedTask) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, task: deletedTask[0] });
+    return NextResponse.json({ success: true, task: deletedTask });
   } catch (error) {
     console.error('Error deleting task:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -52,18 +55,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const isOwner = await checkTaskOwnership(taskId);
     if (!isOwner) return NextResponse.json({ error: 'Unauthorized or not found' }, { status: 403 });
-    
-    // Update the task title and tag
-    const updatedTask = await db.update(tasks).set({ title, tag }).where(eq(tasks.id, taskId)).returning();
 
-    if (updatedTask.length === 0) {
+    const updatedTask = await updateTask(taskId, { title, tag });
+
+    if (!updatedTask) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, task: updatedTask[0] });
+    return NextResponse.json({ success: true, task: updatedTask });
   } catch (error) {
     console.error('Error updating task:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
-

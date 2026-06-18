@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { signToken, verifyPassword } from '../../../lib/auth';
-import { db } from '../../../db';
-import { users } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
+import { findUserByUsername } from '../../../db/repository';
 
 export async function POST(request: Request) {
   try {
@@ -12,7 +10,7 @@ export async function POST(request: Request) {
 
     if (username === adminUsername && password === adminPassword) {
       const token = await signToken({ admin: true, role: 'admin', id: null, username: adminUsername });
-      
+
       const response = NextResponse.json({ success: true });
       response.cookies.set('auth_token', token, {
         httpOnly: true,
@@ -25,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     // Check database for standard users
-    const [user] = await db.select().from(users).where(eq(users.username, username)).limit(1);
+    const user = await findUserByUsername(username);
     
     if (user && verifyPassword(password, user.password)) {
       // Check registration approval status

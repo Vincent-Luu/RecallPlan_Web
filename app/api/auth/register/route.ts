@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { hashPassword } from '../../../../lib/auth';
-import { db } from '../../../../db';
-import { users } from '../../../../db/schema';
+import { insertUser } from '../../../../db/repository';
 
 export async function POST(request: Request) {
   try {
@@ -32,12 +31,12 @@ export async function POST(request: Request) {
 
     const hashedPassword = hashPassword(password);
 
-    await db.insert(users).values({
+    await insertUser({
       username,
       password: hashedPassword,
       status: 'pending',
       role: 'user',
-    }).run();
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

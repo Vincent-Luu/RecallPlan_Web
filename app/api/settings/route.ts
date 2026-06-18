@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../db';
-import { users } from '../../../db/schema';
-import { eq } from 'drizzle-orm';
 import { getCurrentUser } from '../../../lib/auth';
+import { updateUserSettings } from '../../../db/repository';
 
 export async function PATCH(request: Request) {
   try {
@@ -22,9 +20,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: 'gaokaoEnabled must be a boolean' }, { status: 400 });
     }
 
-    await db.update(users)
-      .set({ gaokaoEnabled })
-      .where(eq(users.id, user.id as number));
+    await updateUserSettings(user.id as number, { gaokaoEnabled });
 
     return NextResponse.json({ success: true, gaokaoEnabled });
   } catch (error) {

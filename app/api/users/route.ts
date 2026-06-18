@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../db';
-import { users } from '../../../db/schema';
 import { getCurrentUser, hashPassword } from '../../../lib/auth';
-import { eq } from 'drizzle-orm';
+import { listUsers, insertUser } from '../../../db/repository';
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -10,14 +8,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const allUsers = await db.select({
-    id: users.id,
-    username: users.username,
-    role: users.role,
-    status: users.status,
-    createdAt: users.createdAt,
-  }).from(users);
-
+  const allUsers = await listUsers();
   return NextResponse.json(allUsers);
 }
 
@@ -30,7 +21,7 @@ export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
     if (!username || !password) {
-        return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
+      return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
     }
     if (/[^\x20-\x7E]/.test(password)) {
       return NextResponse.json({ error: '密码只能包含英文字母、数字和特殊符号，不可使用中文' }, { status: 400 });
@@ -43,12 +34,12 @@ export async function POST(request: Request) {
     }
 
     const hashedPassword = hashPassword(password);
-    
-    await db.insert(users).values({
+
+    await insertUser({
       username,
       password: hashedPassword,
       role: 'user',
-    }).run();
+    });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {

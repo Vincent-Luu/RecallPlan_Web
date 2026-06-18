@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { taskLogs, tasks } from '../../../../db/schema';
-import { gte, lte, and, isNull, eq } from 'drizzle-orm';
 import { getCurrentUser } from '../../../../lib/auth';
+import { tasks, userCondition, findMonthStatus } from '../../../../db/repository';
 
 export async function GET(request: Request) {
   try {
@@ -18,38 +16,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Start and end dates are required' }, { status: 400 });
     }
 
-    let userCondition;
-    if (user.admin && targetUserIdStr) {
-      userCondition = eq(tasks.userId, parseInt(targetUserIdStr, 10));
-    } else if (user.admin && user.id === null) {
-      userCondition = isNull(tasks.userId);
-    } else {
-      userCondition = eq(tasks.userId, user.id as number);
-    }
+    const targetUserId = targetUserIdStr ? parseInt(targetUserIdStr, 10) : undefined;
+    const condition = userCondition(tasks, user, targetUserId);
 
-    // Fetch the task logs for the specified date range
-    const logs = await db.select({
-      id: taskLogs.id,
-      scheduleDate: taskLogs.scheduleDate,
-      status: taskLogs.status,
-    })
-    .from(taskLogs)
-    .innerJoin(tasks, eq(taskLogs.taskId, tasks.id))
-    .where(and(gte(taskLogs.scheduleDate, start), lte(taskLogs.scheduleDate, end), userCondition));
-
-    // Group logs by date to compute daily completion status
-    const dailyStatus: Record<string, { completed: number; total: number }> = {};
-
-    logs.forEach((log: { scheduleDate: string; status: boolean }) => {
-      const date = log.scheduleDate;
-      if (!dailyStatus[date]) {
-        dailyStatus[date] = { completed: 0, total: 0 };
-      }
-      dailyStatus[date].total += 1;
-      if (log.status) {
-        dailyStatus[date].completed += 1;
-      }
-    });
+    const dailyStatus = await findMonthStatus(start, end, condition);
 
     return NextResponse.json(dailyStatus);
   } catch (error) {
@@ -57,4 +27,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
-

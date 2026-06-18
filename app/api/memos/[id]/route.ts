@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../../db';
-import { memos } from '../../../../db/schema';
-import { eq } from 'drizzle-orm';
 import { getCurrentUser } from '../../../../lib/auth';
+import { findMemoById, updateMemo, deleteMemoById } from '../../../../db/repository';
 
 async function checkMemoOwnership(memoId: number) {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const [memo] = await db.select().from(memos).where(eq(memos.id, memoId)).limit(1);
+  const memo = await findMemoById(memoId);
   if (!memo) return null;
 
   if (user.admin) return memo;
@@ -37,12 +35,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (title !== undefined) updateData.title = title.trim();
     if (content !== undefined) updateData.content = content;
 
-    const updated = await db.update(memos)
-      .set(updateData)
-      .where(eq(memos.id, memoId))
-      .returning();
+    const updated = await updateMemo(memoId, updateData as { updatedAt: Date; title?: string; content?: string });
 
-    return NextResponse.json(updated[0]);
+    return NextResponse.json(updated);
   } catch (error) {
     console.error('Error updating memo:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -59,7 +54,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       return NextResponse.json({ error: 'Not found or unauthorized' }, { status: 404 });
     }
 
-    await db.delete(memos).where(eq(memos.id, memoId)).run();
+    await deleteMemoById(memoId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting memo:', error);

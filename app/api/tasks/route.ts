@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
-import { db } from '../../../db';
-import { tasks, taskLogs } from '../../../db/schema';
-import { eq, and, isNull } from 'drizzle-orm';
 import { getCurrentUser } from '../../../lib/auth';
 import { todayStr } from '../../../lib/chinaDate';
+import {
+  tasks,
+  userCondition,
+  insertTask,
+  insertTaskLogs,
+  findTaskLogsForDate,
+} from '../../../db/repository';
 
 export async function POST(request: Request) {
   try {
@@ -24,8 +28,7 @@ export async function POST(request: Request) {
     }
 
     // Insert new task
-    const newTask = await db.insert(tasks).values({ title, tag, userId: finalUserId }).returning({ id: tasks.id });
-    const taskId = newTask[0].id;
+    const taskId = await insertTask({ title, tag, userId: finalUserId });
 
     // Use provided localDate (YYYY-MM-DD) or fallback to server date
     let baseDate: Date;
@@ -41,7 +44,12 @@ export async function POST(request: Request) {
     const intervals = [1, 3, 7, 13, 29];
 
     // Create the task logs
-    const logsToInsert = intervals.map(offset => {
+    const logsToInsert: Array<{
+      taskId: number;
+      scheduleDate: string;
+      status: boolean;
+      type: string;
+    }> = intervals.map(offset => {
       const d = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate() + offset);
       const Y = d.getFullYear();
       const M = String(d.getMonth() + 1).padStart(2, '0');
@@ -65,7 +73,7 @@ export async function POST(request: Request) {
       });
     }
 
-    await db.insert(taskLogs).values(logsToInsert).run();
+    await insertTaskLogs(logsToInsert);
 
     return NextResponse.json({ success: true, taskId });
   } catch (error) {
@@ -80,33 +88,14 @@ export async function GET(request: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get('date'); 
+    const date = searchParams.get('date');
     const targetUserIdStr = searchParams.get('userId');
     if (!date) return NextResponse.json({ error: 'Date is required (YYYY-MM-DD format)' }, { status: 400 });
 
-    let userCondition;
-    if (user.admin && targetUserIdStr) {
-      userCondition = eq(tasks.userId, parseInt(targetUserIdStr, 10));
-    } else if (user.admin && user.id === null) {
-      userCondition = isNull(tasks.userId);
-    } else {
-      userCondition = eq(tasks.userId, user.id as number);
-    }
+    const targetUserId = targetUserIdStr ? parseInt(targetUserIdStr, 10) : undefined;
+    const condition = userCondition(tasks, user, targetUserId);
 
-    // Fetch the task logs for the specified date
-    const logs = await db.select({
-      id: taskLogs.id,
-      taskId: taskLogs.taskId,
-      scheduleDate: taskLogs.scheduleDate,
-      status: taskLogs.status,
-      title: tasks.title,
-      tag: tasks.tag,
-      createdAt: tasks.createdAt,
-      type: taskLogs.type,
-    })
-    .from(taskLogs)
-    .innerJoin(tasks, eq(taskLogs.taskId, tasks.id))
-    .where(and(eq(taskLogs.scheduleDate, date), userCondition));
+    const logs = await findTaskLogsForDate(date, condition);
 
     return NextResponse.json(logs);
   } catch (error) {
