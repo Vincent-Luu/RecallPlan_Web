@@ -193,29 +193,25 @@ if (provider === "sqlite") {
   const rawDb = drizzle({ client: sql });
 
   /**
-   * Universal .run() compatibility proxy.
-   *
-   * The sql-js driver requires .run() to execute INSERT/UPDATE/DELETE;
-   * the neon-http driver auto-executes when awaited and has no .run().
-   * This proxy recursively wraps every query-builder method return so that
-   * calling .run() is always safe — on neon-http it simply returns the
-   * thenable unchanged.
+   * Recursively wraps Drizzle query builders so that .run() is always
+   * available as a no-op passthrough.  Skips Promise protocol methods
+   * (`then`, `catch`, `finally`) to avoid "Promise.prototype.then called
+   * on incompatible receiver" — intercepting them changes the `this`
+   * binding and breaks Drizzle's thenable resolution.
    */
   function withRun(result: any): any {
-    if (!result || typeof result !== 'object') return result;
-    // Already has .run — pass through (should not happen on neon-http,
-    // but guard for future Drizzle changes)
-    if ('run' in result) return result;
+    if (!result || typeof result !== "object") return result;
+    if ("run" in result) return result;
 
     return new Proxy(result, {
       get(target, prop, receiver) {
-        if (prop === 'run') {
-          // .run() is a no-op that returns the thenable itself,
-          // so `await db.insert(...).values(...).run()` works
-          return () => target;
+        if (prop === "run") return () => target;
+        // Pass through Promise protocol untouched
+        if (prop === "then" || prop === "catch" || prop === "finally") {
+          return Reflect.get(target, prop, receiver);
         }
         const value = Reflect.get(target, prop, receiver);
-        if (typeof value === 'function') {
+        if (typeof value === "function") {
           return function (this: any, ...args: any[]) {
             return withRun(value.apply(this ?? target, args));
           };
@@ -227,8 +223,12 @@ if (provider === "sqlite") {
 
   db = new Proxy(rawDb, {
     get(target, prop, receiver) {
+      // Let Promise protocol pass through on the root `db` object too
+      if (prop === "then" || prop === "catch" || prop === "finally") {
+        return Reflect.get(target, prop, receiver);
+      }
       const value = Reflect.get(target, prop, receiver);
-      if (typeof value === 'function') {
+      if (typeof value === "function") {
         return function (this: any, ...args: any[]) {
           return withRun(value.apply(this ?? target, args));
         };
