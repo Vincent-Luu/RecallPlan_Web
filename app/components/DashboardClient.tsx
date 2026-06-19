@@ -215,7 +215,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
         <span className="text-sm font-medium text-slate-400 dark:text-slate-400 mt-1">{dateString}</span>
       </div>
       
-      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 pb-4 mt-4 stagger-enter">
+      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 pb-4 mt-4">
         {tasksList.length === 0 ? (
           <div className={`h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl transition-colors ${daySection === 'preview' ? 'border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50' : 'border-slate-200 bg-white/50 dark:border-slate-700 dark:bg-slate-900/30'}`}>
             <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
@@ -246,8 +246,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
                 return (
                   <div
                     key={twentyMin.id}
-                    style={{ '--i': i } as React.CSSProperties}
-                    onClick={isRowClickable ? () => toggleTaskStatus(twentyMin.id, twentyMin.status, daySection) : undefined}
+                                        onClick={isRowClickable ? () => toggleTaskStatus(twentyMin.id, twentyMin.status, daySection) : undefined}
                     className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                       twentyMin.status
                         ? `bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700${isRowClickable ? ' hover:bg-slate-200/80 hover:border-slate-300/60 dark:hover:bg-slate-700/60 dark:hover:border-slate-600 cursor-pointer' : ''}`
@@ -290,8 +289,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
               return (
                 <div
                   key={task.id}
-                  style={{ '--i': i } as React.CSSProperties}
-                  className={`group flex items-center p-4 rounded-2xl tx-surface border ${
+                                    className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                     task.status
                       ? 'bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700'
                       : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 cursor-pointer shadow-sm hover:shadow-md'
@@ -328,8 +326,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
           tasksList.map((task, i) => (
             <div
               key={task.id}
-              style={{ '--i': i } as React.CSSProperties}
-              className={`group flex items-center p-4 rounded-2xl tx-surface border ${
+                            className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                 task.status
                   ? 'bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700'
                   : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 cursor-pointer shadow-sm hover:shadow-md'
