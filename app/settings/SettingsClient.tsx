@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { ShieldCheck, ChevronRight, GraduationCap } from "lucide-react";
+import { ShieldCheck, ChevronRight, GraduationCap, Info } from "lucide-react";
 import AccountManager from "./AccountManager";
+import AboutSection from "./AboutSection";
 import PageHeader from "@/app/components/PageHeader";
 import BackgroundBlobs from "@/app/components/BackgroundBlobs";
 
@@ -51,7 +52,7 @@ export default function SettingsClient({
   initialUsers: UserType[];
   gaokaoEnabled?: boolean;
 }) {
-  const [activeSection, setActiveSection] = useState<"overview" | "account">("overview");
+  const [activeSection, setActiveSection] = useState<"overview" | "account" | "about">("overview");
   const [gaokaoEnabled, setGaokaoEnabled] = useState(true);
   const [mounted, setMounted] = useState(false);
 
@@ -100,6 +101,11 @@ export default function SettingsClient({
     );
   }
 
+  // ==================== 关于页面（全员可见） ====================
+  if (activeSection === "about") {
+    return <AboutSection onBack={() => setActiveSection("overview")} />;
+  }
+
   // ==================== 共享布局 ====================
   return (
     <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans relative overflow-hidden transition-colors duration-500">
@@ -131,6 +137,27 @@ export default function SettingsClient({
               </div>
             </div>
           )}
+
+          {/* ===== 关于（全员可见） ===== */}
+          <button
+            onClick={() => setActiveSection("about")}
+            className="w-full bg-white/70 dark:bg-slate-900/60 rounded-[2rem] p-6 shadow-md border border-white dark:border-slate-800 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 group text-left"
+          >
+            <div className="flex items-center gap-5">
+              <div className="p-3.5 bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 rounded-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
+                <Info className="w-7 h-7" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-slate-700 dark:text-slate-200">
+                  关于
+                </h3>
+                <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+                  项目信息、设计署名与技术规范
+                </p>
+              </div>
+              <ChevronRight className="w-6 h-6 text-slate-300 dark:text-slate-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+            </div>
+          </button>
 
           {/* ===== 帐号管理（仅 admin） ===== */}
           {isAdmin && (
