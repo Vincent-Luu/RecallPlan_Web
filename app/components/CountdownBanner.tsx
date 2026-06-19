@@ -45,7 +45,7 @@ export default function CountdownBanner({
   const year = gaokaoDate.getFullYear();
 
   return (
-    <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl rounded-[2rem] px-6 py-5 shadow-sm border border-white/80 dark:border-slate-700 transition-colors duration-500">
+    <div className="bg-white/60 dark:bg-slate-900/60 rounded-[2rem] px-6 py-5 shadow-sm border border-white/80 dark:border-slate-700 transition-colors duration-500">
       <div className="flex items-center justify-center gap-5 md:gap-8">
         {/* 图标 */}
         <div className="p-3 bg-rose-50 dark:bg-rose-500/20 text-rose-500 dark:text-rose-400 rounded-2xl flex-shrink-0">

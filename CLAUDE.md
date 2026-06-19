@@ -61,6 +61,7 @@ npm run db:studio    # 启动 Drizzle Studio
 | POST | `/api/memos` | 创建备忘录 |
 | PATCH | `/api/memos/[id]` | 编辑备忘录标题/内容（拥有者或 admin） |
 | DELETE | `/api/memos/[id]` | 删除备忘录（拥有者或 admin） |
+| GET | `/api/tasks/stats` | 获取学习统计（完成率、连续天数、学科分布、月度趋势、间隔完成率） |
 | PATCH | `/api/settings` | 更新用户设置（高考倒计时开关 `gaokaoEnabled`） |
 | GET | `/api/users` | 获取用户列表（admin 专用） |
 | POST | `/api/users` | admin 创建用户（直接设为 `approved`） |
@@ -76,10 +77,13 @@ npm run db:studio    # 启动 Drizzle Studio
 | `/` | SSR → Client | 三卡片仪表盘（昨天/今天/明天），高考倒计时横幅，月度日历弹窗，新建任务弹窗，备忘录侧栏，番茄钟按钮 |
 | `/login` | Client | 登录表单 + 注册弹窗 |
 | `/tasks` | Client | 所有任务列表，支持编辑/删除，含进度条 |
-| `/settings` | SSR → Client | admin 用户管理（审批注册用户、创建/删除用户、查看用户任务） |
+| `/stats` | SSR → Client | 学习统计看板（完成率环形图、学科柱状图、月度趋势、艾宾浩斯间隔分析） |
+| `/settings` | SSR → Client | 设置页（高考倒计时开关 + admin 用户管理入口） |
 | `/settings/user/[id]/tasks` | SSR → Client | admin 以目标用户身份查看仪表盘 |
 
 ## 设计规范
+
+### 代码质量（保持不变）
 
 每次添加或修改功能时，在动手实现之前先做一轮自我审查：
 
@@ -89,12 +93,124 @@ npm run db:studio    # 启动 Drizzle Studio
 - **类型安全不放水** — 关闭 `any` 必须有充分理由（repository 的类型隔离层是少数合理例外）。对外暴露的函数接口应有明确类型签名。
 - **保留灵活性** — 以上规范是指导原则，不是教条。如果最佳实践在当前场景下引入了不必要的复杂度，用常识判断，在规范与务实之间取平衡。目标是"较为严谨的个人开发者"，不是企业级流程。
 
+### 视觉设计规范（设计系统 v1）
+
+本节记录通过设计审查和反 AI 味美化后确立的视觉系统规则。所有新页面和组件必须遵循。
+
+#### 设计 Token（`app/globals.css`）
+
+所有颜色通过语义化 CSS 自定义属性定义，已注册到 Tailwind v4 `@theme`，可通过 utility class 使用：
+
+| Token | 亮色模式 | 暗色模式 | 用途 |
+|-------|---------|---------|------|
+| `--background` | `#f8fafc` | `#0f172a` | 页面基底（`bg-background` 或 `.page-canvas`） |
+| `--foreground` | `#0f172a` | `#f8fafc` | 主文字色 |
+| `--surface` | `#ffffff` | `#1e293b` | 卡片/面板表面 |
+| `--muted` | `#64748b` | `#94a3b8` | 次要文字 |
+| `--border` | `#e2e8f0` | `#334155` | 边框/分隔线 |
+| `--accent` | `#0d9488` | `#2dd4bf` | **唯一强调色**，用于主 CTA |
+| `--accent-foreground` | `#ffffff` | `#0f172a` | accent 背景上的文字 |
+| `--success` | `#16a34a` | `#4ade80` | 完成/通过 |
+| `--warn` | `#d97706` | `#fbbf24` | 警告/待处理 |
+| `--danger` | `#dc2626` | `#f87171` | 错误/删除 |
+
+**使用方式：** `bg-accent`、`text-accent-foreground`、`text-muted`、`border-border` 等。
+
+#### 页面基底
+
+```tsx
+// 每页外层容器 — 使用 page-canvas 而非手写渐变
+<div className="min-h-screen page-canvas ...">
+  <BackgroundBlobs />  {/* 单一 accent 氛围光 */}
+  ...
+</div>
+```
+
+**禁止：** 手写 `bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200` 或任何暖灰多色渐变作为页面背景。
+
+#### CTA 按钮标准
+
+```tsx
+// 主操作按钮 — 使用 accent 色
+<button className="bg-accent hover:bg-accent/85 text-accent-foreground ...">
+  确认
+</button>
+
+// 次要/取消按钮 — 使用 muted 中性色
+<button className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ...">
+  取消
+</button>
+```
+
+**禁止：** 主 CTA 使用 `bg-slate-600` 或 `bg-slate-700`（对高中生过于沉闷）。
+
+#### backdrop-filter 使用规则
+
+- **仅允许在以下场景使用：**
+  - 固定导航栏（sticky header）
+  - Modal/弹窗的遮罩层和容器
+  - 浮层/下拉菜单
+- **禁止在以下场景使用：**
+  - 静态卡片（任务卡片、统计卡片、设置面板、倒计时横幅等）
+  - 列表行
+  - 登录/404 页面卡片
+
+#### 排版
+
+- **字体：** Geist（`var(--font-geist-sans)`）为全局 sans，Geist Mono 为等宽
+- **body 上必须使用 `var(--font-geist-sans)`**，禁止 `font-family: Arial`
+- **标题使用 `tracking-tight`（`-0.025em`）**，正文使用默认 tracking
+- **学科标签**使用 `tracking-wider`（≥ `0.05em`）
+- **数字使用 `tabular-nums`**（如高考倒计时天数）
+
+#### 圆角体系
+
+| 用途 | 值 |
+|------|-----|
+| 按钮、输入框、标签 | `rounded-xl` |
+| 卡片 | `rounded-2xl` |
+| 弹窗 | `rounded-[2rem]` |
+| Pill/全圆 | `rounded-full` |
+
+#### 阴影
+
+项目使用单一 `shadow-huge`（定义在 `globals.css`）用于弹窗。卡片使用 Tailwind 内置 `shadow-sm`/`shadow-md`/`shadow-xl`。
+
+#### 禁止的 AI 味模式
+
+- ❌ 暖灰/奶油色多色渐变页面背景
+- ❌ 对称的蓝+灰色装饰性模糊 blob
+- ❌ 静态卡片上使用 `backdrop-blur`
+- ❌ 主操作按钮使用 slate 灰色
+- ❌ 图标旁每处都有 emoji
+- ❌ `custom-scrollbar` / `shadow-huge` 以内联 `<style>` 注入
+- ❌ 多个文件中复制粘贴相同的页面背景/装饰代码
+- ❌ 页面中出现设计师控件（平台选择器、主题旋钮、Tweaks 面板等）
+
+#### 共享组件清单
+
+| 组件 | 路径 | 用途 |
+|------|------|------|
+| `BackgroundBlobs` | `app/components/BackgroundBlobs.tsx` | 页面氛围光（单一 accent 方向光，非装饰 blob） |
+| `AppHeader` | `app/components/AppHeader.tsx` | 全局顶部导航 |
+| `PageHeader` | `app/components/PageHeader.tsx` | 子页面顶部栏（返回+标题） |
+| `CountdownBanner` | `app/components/CountdownBanner.tsx` | 高考倒计时横幅 |
+| `TwentyMinButton` | `app/components/TwentyMinButton.tsx` | 20 分钟复习按钮（含倒计时） |
+| `MemosModal` | `app/components/MemosModal.tsx` | 备忘录弹窗 |
+| `ConfirmModal` | `app/components/ConfirmModal.tsx` | 确认删除弹窗 |
+| `RegistrationModal` | `app/components/RegistrationModal.tsx` | 注册弹窗 |
+| `ThemeProvider` | `app/components/ThemeProvider.tsx` | 深色/浅色主题 Context |
+
+**新建页面前检查：** 页面基底使用 `.page-canvas` + `<BackgroundBlobs />`，不要手写背景。如果新页面看起来和其他页面风格不同，说明没有遵循规范。
+
 ## 关键模式
 
 - **乐观更新**：`DashboardClient` 在切换任务状态时立即更新本地 state，若 API 调用失败则重新获取数据回滚
 - **Admin 用户模型**：admin 有两种形态——环境变量中配置的超级管理员（`id = null`，`admin = true`，不存数据库）和数据库中 `role = 'admin'` 的普通管理员。环境变量 admin 登录时不查数据库。env admin 没有 DB 记录，涉及用户自身设置（如 gaokao 偏好）时走 localStorage
-- **学科标签**：在 `DashboardClient` 和 `tasks/page` 中均定义了相同的 `SUBJECT_TAGS` 数组（语文/数学/英语/物理/化学/生物/其他），各有独立的颜色主题 — 修改标签时需同时更新两处
-- **主题切换**：`ThemeProvider`（`app/components/ThemeProvider.tsx`）使用 React Context + localStorage + `<html>` class 切换实现深色/浅色模式，通过 `suppressHydrationWarning` 和延迟挂载避免水合不匹配
+- **学科标签**：统一定义在 `app/lib/subjectTags.ts`，导出 `SUBJECT_TAGS` 数组（语文/数学/英语/物理/化学/生物/其他）和 `getTagStyle()` 工具函数。各组件通过 import 使用，不再散落定义。修改标签时只需编辑 `subjectTags.ts`
+- **主题切换**：`ThemeProvider`（`app/components/ThemeProvider.tsx`）使用 React Context + localStorage + `<html>` class 切换实现深色/浅色模式，通过 `suppressHydrationWarning` 和延迟挂载避免水合不匹配。设计 Token 在 `globals.css` 的 `:root` 和 `.dark` 中分别定义，切换通过 `.dark` class 驱动
+- **全局样式**：`custom-scrollbar` 和 `shadow-huge` 定义在 `app/globals.css` 中（已从 `DashboardClient` 内联 style 迁移），所有页面可直接使用
+- **BackgroundBlobs**：`app/components/BackgroundBlobs.tsx` — 页面氛围光组件，提供单一 accent 色定向光（非装饰 blob）。所有页面统一使用，不再复制粘贴 blob 代码
 - **双数据库支持**：`db/schema.ts` 根据 `DATABASE_PROVIDER` 动态加载 `schema.pg.ts` 或 `schema.sqlite.ts`，`db/client.ts` 同理切换 Neon HTTP 驱动和 sql.js WASM 驱动
 - **SQLite 持久化**：`db/client.ts` 通过劫持 `sqlDb.run`/`exec`/`prepare` 方法自动检测写操作并延迟 100ms 持久化到磁盘文件，另有 5 秒间隔安全网定时写入；通过 `globalThis.__dbSingleton` 避免 Next.js 热重载时重复创建实例
 - **注册审批流程**：用户通过 `/api/auth/register` 注册后 `status = 'pending'`，需 admin 在设置页通过 `/api/users/[id]` PATCH 审批为 `approved` 后才能正常使用。登录时检查 `status`，`pending` 用户被拒绝登录

@@ -144,7 +144,7 @@ export default function AppHeader({ targetUserId, onOpenMemo, onOpenCalendar, on
           </button>
           <button
             onClick={onOpenNewTask}
-            className="flex items-center gap-1.5 md:gap-2 bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 px-3 py-2 md:px-5 md:py-2.5 rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95 md:ml-2 whitespace-nowrap"
+            className="flex items-center gap-1.5 md:gap-2 bg-accent hover:bg-accent/85 text-accent-foreground px-3 py-2 md:px-5 md:py-2.5 rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95 md:ml-2 whitespace-nowrap"
           >
             <PlusCircle className="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" />
             <span className="hidden md:inline">新任务</span>

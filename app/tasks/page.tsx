@@ -134,7 +134,7 @@ export default function TaskListPage({ searchParams }: { searchParams: Promise<{
   }, [tasks]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 transition-colors duration-500">
       
       <PageHeader
         backHref={targetUserId ? `/settings/user/${targetUserId}/tasks` : "/"}
@@ -145,7 +145,7 @@ export default function TaskListPage({ searchParams }: { searchParams: Promise<{
       {/* Main Layout */}
       <main className="pt-24 md:pt-32 pb-12 px-4 md:px-12 max-w-4xl mx-auto">
         
-        <div className="bg-white/60 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] p-8 shadow-sm border border-white/80 dark:border-slate-700 min-h-[500px] transition-colors duration-500">
+        <div className="bg-white/80 dark:bg-slate-800/80 rounded-[2rem] p-8 shadow-sm border border-white/80 dark:border-slate-700 min-h-[500px] transition-colors duration-500">
 
           {/* Filter Bar */}
           {!loading && tasks.length > 0 && (

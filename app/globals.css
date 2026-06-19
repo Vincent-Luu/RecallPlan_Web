@@ -2,26 +2,161 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ============================================================
+   Design Tokens — semantic colour layers
+   ============================================================ */
 :root {
+  /* Neutrals (70–90% of pixels) */
   --background: #f8fafc;
   --foreground: #0f172a;
-}
+  --surface:    #ffffff;
+  --muted:      #64748b;
+  --border:     #e2e8f0;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Accent — warm teal (youthful without being childish) */
+  --accent:           #0d9488;
+  --accent-foreground: #ffffff;
+
+  /* Semantic status */
+  --success: #16a34a;
+  --warn:    #d97706;
+  --danger:  #dc2626;
 }
 
 .dark {
-  --background: #0f172a; /* slate-900 */
-  --foreground: #f8fafc; /* slate-50 */
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --surface:    #1e293b;
+  --muted:      #94a3b8;
+  --border:     #334155;
+
+  --accent:           #2dd4bf;
+  --accent-foreground: #0f172a;
+
+  --success: #4ade80;
+  --warn:    #fbbf24;
+  --danger:  #f87171;
+}
+
+/* Register tokens with Tailwind v4 so they work as utility classes */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface:    var(--surface);
+  --color-muted:      var(--muted);
+  --color-border:     var(--border);
+  --color-accent:     var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-success:    var(--success);
+  --color-warn:       var(--warn);
+  --color-danger:     var(--danger);
+  --font-sans:  var(--font-geist-sans);
+  --font-mono:  var(--font-geist-mono);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ============================================================
+   Shared utilities
+   ============================================================ */
+
+/*
+   Page canvas — clean neutral surface.
+   Replaces the old "from-gray-50 via-gray-100 to-slate-200" warm gradient
+   that read as AI-default cozy canvas.
+   Ambient light is handled by the BackgroundBlobs component (single accent
+   directional wash), not a multi-stop gradient.
+*/
+.page-canvas {
+  background: var(--background);
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 5px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+}
+
+/* Elevated panel shadow — one canonical shadow, not five competing ones */
+.shadow-huge {
+  box-shadow:
+    0 30px 60px -12px rgba(50, 50, 93, 0.1),
+    0 18px 36px -18px rgba(0, 0, 0, 0.15);
+}
+
+/* Frosted surface — use ONCE per screen (modals), not on every card */
+.surface-frosted {
+  background: color-mix(in oklch, var(--surface) 80%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .surface-frosted { background: var(--surface); }
+}
+
+/* ============================================================
+   Motion primitives — one language across the artifact
+   ============================================================ */
+
+:root {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);   /* Material‑3 emphasized decel */
+  --ease-in:  cubic-bezier(0.4, 0, 1, 1);       /* accelerated entry */
+  --duration-fast:   100ms;
+  --duration-normal: 150ms;
+  --duration-slow:   250ms;
+}
+
+/* Targeted transition helper — replaces bare "transition-all" */
+.tx-colors  { transition: color var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out); }
+.tx-surface { transition: transform var(--duration-normal) var(--ease-out), opacity var(--duration-normal) var(--ease-out), box-shadow var(--duration-normal) var(--ease-out); }
+.tx-input   { transition: border-color var(--duration-fast) var(--ease-out), box-shadow var(--duration-fast) var(--ease-out); }
+
+/* Press feedback — consistent across all interactive elements */
+.press {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+/* Staggered list entry — each child gets style="--i: N" */
+@keyframes list-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stagger-enter > * {
+  opacity: 0;
+  animation: list-enter var(--duration-slow) var(--ease-out) forwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+/* ============================================================
+   Reduced motion — gate everything
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .stagger-enter > * {
+    opacity: 1;
+    animation: none;
+  }
+  .press:active { transform: none; }
 }
 

@@ -5,8 +5,8 @@ import { ArrowLeft, FileQuestion } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans flex items-center justify-center p-6 transition-colors duration-500">
-      <div className="bg-white/60 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] p-10 md:p-12 shadow-sm border border-white/80 dark:border-slate-700 max-w-md w-full text-center transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans flex items-center justify-center p-6 transition-colors duration-500">
+      <div className="bg-white/60 dark:bg-slate-800/80 rounded-[2rem] p-10 md:p-12 shadow-sm border border-white/80 dark:border-slate-700 max-w-md w-full text-center transition-colors duration-500">
         <div className="flex justify-center mb-6">
           <div className="p-5 bg-slate-100 dark:bg-slate-700 rounded-2xl text-slate-400 dark:text-slate-500">
             <FileQuestion className="w-12 h-12" />
@@ -22,7 +22,7 @@ export default function NotFound() {
         <div className="space-y-3">
           <Link
             href="/"
-            className="block w-full py-3 bg-slate-700 dark:bg-slate-200 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 font-bold rounded-xl shadow-md transition-all"
+            className="block w-full py-3 bg-accent hover:bg-accent/85 text-accent-foreground font-bold rounded-xl shadow-md transition-all"
           >
             返回首页看板
           </Link>

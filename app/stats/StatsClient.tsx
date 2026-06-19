@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { Flame, Award, TrendingUp, Loader2, RefreshCw, Clock, Calendar as CalendarIcon } from "lucide-react";
 import PageHeader from "@/app/components/PageHeader";
+import BackgroundBlobs from "@/app/components/BackgroundBlobs";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -108,7 +109,7 @@ function PeriodSwitcher({
 
   return (
     <div className="flex items-center justify-center mb-6">
-      <div className="inline-flex bg-white/40 dark:bg-slate-800/40 backdrop-blur-md rounded-full p-1 border border-white/60 dark:border-slate-700/60 shadow-sm">
+      <div className="inline-flex bg-white/60 dark:bg-slate-800/60 rounded-full p-1 border border-white/60 dark:border-slate-700/60 shadow-sm">
         {options.map(opt => (
           <button
             key={opt.value}
@@ -144,7 +145,7 @@ function CardShell({
 }) {
   return (
     <div
-      className={`bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60 transition-colors duration-500 ${className}`}
+      className={`bg-white/50 dark:bg-slate-900/50 rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60 transition-colors duration-500 ${className}`}
     >
       <div className="flex items-center gap-2.5 mb-4">
         <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-600 dark:text-slate-300">
@@ -253,9 +254,8 @@ export default function StatsClient({
   // =========================================================================
   if (loading && !stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
+        <BackgroundBlobs />
 
         <PageHeader backHref={backHref} title="学习统计看板" />
 
@@ -266,7 +266,7 @@ export default function StatsClient({
             {[1, 2, 3].map(i => (
               <div
                 key={i}
-                className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60"
+                className="bg-white/50 dark:bg-slate-900/50  rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60"
               >
                 <Skeleton className="w-10 h-10 rounded-xl mb-4" />
                 <Skeleton className="h-8 w-24 mb-2" />
@@ -276,18 +276,18 @@ export default function StatsClient({
           </section>
 
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
-            <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
+            <div className="bg-white/50 dark:bg-slate-900/50  rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
               <Skeleton className="w-10 h-10 rounded-xl mb-4" />
               <Skeleton className="h-48 w-full rounded-xl" />
             </div>
-            <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
+            <div className="bg-white/50 dark:bg-slate-900/50  rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
               <Skeleton className="w-10 h-10 rounded-xl mb-4" />
               <Skeleton className="h-48 w-full rounded-xl" />
             </div>
           </section>
 
           <section>
-            <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
+            <div className="bg-white/50 dark:bg-slate-900/50  rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
               <Skeleton className="w-10 h-10 rounded-xl mb-4" />
               <Skeleton className="h-48 w-full rounded-xl" />
             </div>
@@ -302,9 +302,8 @@ export default function StatsClient({
   // =========================================================================
   if (error && !stats) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
+        <BackgroundBlobs />
 
         <PageHeader backHref={backHref} title="学习统计看板" />
 
@@ -318,7 +317,7 @@ export default function StatsClient({
             </p>
             <button
               onClick={() => fetchStats(period)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent/85 text-accent-foreground rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95"
             >
               <RefreshCw className="w-4 h-4" />
               重试
@@ -334,9 +333,8 @@ export default function StatsClient({
   // =========================================================================
   if (!hasAnyData && !loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
+        <BackgroundBlobs />
 
         <PageHeader backHref={backHref} title="学习统计看板" />
 
@@ -370,7 +368,7 @@ export default function StatsClient({
           </section>
 
           {/* Empty guidance */}
-          <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-12 shadow-md border border-white/60 dark:border-slate-700/60 text-center">
+          <div className="bg-white/50 dark:bg-slate-900/50  rounded-[2rem] p-12 shadow-md border border-white/60 dark:border-slate-700/60 text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 mb-4">
               <TrendingUp className="w-8 h-8 text-slate-400 dark:text-slate-500" />
             </div>
@@ -392,10 +390,9 @@ export default function StatsClient({
   const statsData = stats!;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
       {/* Decorative blobs (identical to DashboardClient) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <BackgroundBlobs />
 
       <PageHeader
         backHref={backHref}

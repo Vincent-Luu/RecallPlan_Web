@@ -5,6 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { UserPlus, Users, ArrowLeft, Trash2, KeyRound, Loader2, Clock } from "lucide-react";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import BackgroundBlobs from "@/app/components/BackgroundBlobs";
 
 type UserType = {
   id: number;
@@ -191,10 +192,8 @@ export default function AccountManager({
   const rejectedUsers = users.filter((u) => u.status === "rejected");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans p-6 md:p-12 relative overflow-hidden transition-colors duration-500">
-      {/* Background decorations */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans p-6 md:p-12 relative overflow-hidden transition-colors duration-500">
+      <BackgroundBlobs />
 
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="flex items-center justify-between mb-10">

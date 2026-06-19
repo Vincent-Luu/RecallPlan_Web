@@ -1,12 +1,11 @@
 import { Loader2 } from "lucide-react";
+import BackgroundBlobs from "./components/BackgroundBlobs";
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 dark:from-slate-950 via-gray-100 dark:via-slate-900 to-slate-200 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans relative overflow-hidden transition-colors duration-500">
 
-      {/* Decorative Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <BackgroundBlobs />
 
       {/* Header Skeleton */}
       <header className="fixed top-0 inset-x-0 h-24 flex items-center justify-between px-8 md:px-12 z-40 bg-white/40 dark:bg-slate-900/60 backdrop-blur-xl border-b border-white/50 dark:border-slate-800 shadow-sm transition-colors duration-500">

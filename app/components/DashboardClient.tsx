@@ -7,6 +7,7 @@ import AppHeader from "./AppHeader";
 import CountdownBanner from "./CountdownBanner";
 import MemosModal from "./MemosModal";
 import TwentyMinButton, { formatCountdown, TWENTY_MIN_MS } from "./TwentyMinButton";
+import BackgroundBlobs from "./BackgroundBlobs";
 import { SUBJECT_TAGS, getTagStyle } from "@/app/lib/subjectTags";
 
 type TaskLog = {
@@ -214,7 +215,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
         <span className="text-sm font-medium text-slate-400 dark:text-slate-400 mt-1">{dateString}</span>
       </div>
       
-      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 pb-4 mt-4">
+      <div className="flex-1 overflow-y-auto space-y-3 custom-scrollbar pr-2 pb-4 mt-4 stagger-enter">
         {tasksList.length === 0 ? (
           <div className={`h-40 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl transition-colors ${daySection === 'preview' ? 'border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50' : 'border-slate-200 bg-white/50 dark:border-slate-700 dark:bg-slate-900/30'}`}>
             <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mb-2" />
@@ -233,7 +234,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
               else entry.regular = log;
             });
 
-            return Array.from(grouped.values()).map(({ regular, twentyMin, title, tag, createdAt }) => {
+            return Array.from(grouped.values()).map(({ regular, twentyMin, title, tag, createdAt }, i) => {
               // Render row with 20min button (replaces day-0 daily check-in)
               if (twentyMin) {
                 const remainingMs = (createdAt && now !== null) ? Math.min(TWENTY_MIN_MS, Math.max(0, (new Date(createdAt).getTime() + TWENTY_MIN_MS) - now)) : 0;
@@ -245,8 +246,9 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
                 return (
                   <div
                     key={twentyMin.id}
+                    style={{ '--i': i } as React.CSSProperties}
                     onClick={isRowClickable ? () => toggleTaskStatus(twentyMin.id, twentyMin.status, daySection) : undefined}
-                    className={`group flex items-center p-4 rounded-2xl transition-all duration-300 backdrop-blur-md border ${
+                    className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                       twentyMin.status
                         ? `bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700${isRowClickable ? ' hover:bg-slate-200/80 hover:border-slate-300/60 dark:hover:bg-slate-700/60 dark:hover:border-slate-600 cursor-pointer' : ''}`
                         : `bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700${isRowClickable ? ' cursor-pointer' : ''} shadow-sm hover:shadow-md`
@@ -288,7 +290,8 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
               return (
                 <div
                   key={task.id}
-                  className={`group flex items-center p-4 rounded-2xl transition-all duration-300 backdrop-blur-md border ${
+                  style={{ '--i': i } as React.CSSProperties}
+                  className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                     task.status
                       ? 'bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700'
                       : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 cursor-pointer shadow-sm hover:shadow-md'
@@ -322,10 +325,11 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
           })()
         ) : (
           /* Yesterday / Tomorrow / Preview: flat rendering (no grouping) */
-          tasksList.map(task => (
+          tasksList.map((task, i) => (
             <div
               key={task.id}
-              className={`group flex items-center p-4 rounded-2xl transition-all duration-300 backdrop-blur-md border ${
+              style={{ '--i': i } as React.CSSProperties}
+              className={`group flex items-center p-4 rounded-2xl tx-surface border ${
                 task.status
                   ? 'bg-slate-100/80 border-slate-200/60 dark:bg-slate-800/40 dark:border-slate-700'
                   : 'bg-white border-slate-100 hover:bg-slate-50 hover:border-slate-300 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 cursor-pointer shadow-sm hover:shadow-md'
@@ -361,10 +365,9 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans selection:bg-slate-300/50 dark:selection:bg-slate-700/50 relative overflow-hidden transition-colors duration-500">
       
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <BackgroundBlobs />
 
       <AppHeader
         targetUserId={targetUserId}
@@ -379,7 +382,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch h-[calc(100vh-14rem)]">
           
-          <div className="hidden lg:flex relative transform lg:scale-95 opacity-80 blur-[0.5px] hover:blur-none hover:opacity-100 transition-all duration-500 ease-out flex-col bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
+          <div className="hidden lg:flex relative transform lg:scale-95 opacity-80 hover:opacity-100 transition-all duration-500 ease-out flex-col bg-white/50 dark:bg-slate-900/50 rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
             <TaskCardList 
               title="昨天" 
               dateString={format(yesterdayDate, "MM月dd日")} 
@@ -397,7 +400,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
             />
           </div>
 
-          <div className="hidden lg:flex relative transform lg:scale-95 opacity-80 blur-[0.5px] hover:blur-none hover:opacity-100 transition-all duration-500 ease-out flex-col bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
+          <div className="hidden lg:flex relative transform lg:scale-95 opacity-80 hover:opacity-100 transition-all duration-500 ease-out flex-col bg-white/50 dark:bg-slate-900/50 rounded-[2rem] p-6 shadow-md border border-white/60 dark:border-slate-700/60">
             <TaskCardList 
               title="明天" 
               dateString={format(tomorrowDate, "MM月dd日")} 
@@ -593,7 +596,7 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
                 <button
                   type="submit"
                   disabled={!newTaskTitle.trim() || isAddingTask}
-                  className="px-5 py-2.5 rounded-xl font-bold bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 transition-colors disabled:opacity-50 shadow-md flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl font-bold bg-accent hover:bg-accent/85 text-accent-foreground transition-colors disabled:opacity-50 shadow-md flex items-center gap-2"
                 >
                   {isAddingTask && <Loader2 className="w-4 h-4 animate-spin" />}
                   {isAddingTask ? "正在创建..." : "确认安排"}
@@ -603,25 +606,6 @@ export default function DashboardClient({ initialTasks, initialCalendarStatus, i
           </div>
         </div>
       )}
-
-      <style dangerouslySetInnerHTML={{__html:`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 5px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 5px;
-        }
-        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-          background: #94a3b8;
-        }
-        .shadow-huge {
-          box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.1), 0 18px 36px -18px rgba(0, 0, 0, 0.15);
-        }
-      `}} />
 
       {isMemoOpen && (
         <MemosModal

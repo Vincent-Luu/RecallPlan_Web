@@ -197,7 +197,7 @@ export default function MemosModal({ isOpen, onClose, targetUserId }: MemosModal
                   setIsCreating(true);
                   setEditingId(null);
                 }}
-                className="flex items-center gap-1.5 px-3.5 py-2 bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95 text-sm"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-accent hover:bg-accent/85 text-accent-foreground rounded-full font-semibold shadow-md transition-all hover:scale-105 active:scale-95 text-sm"
               >
                 <Plus className="w-4 h-4" />
                 <span>新建</span>
@@ -241,7 +241,7 @@ export default function MemosModal({ isOpen, onClose, targetUserId }: MemosModal
                   <button
                     onClick={handleCreate}
                     disabled={!newTitle.trim() || isSaving}
-                    className="px-5 py-2 bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 font-bold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm"
+                    className="px-5 py-2 bg-accent hover:bg-accent/85 text-accent-foreground font-bold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm"
                   >
                     {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                     保存
@@ -303,7 +303,7 @@ export default function MemosModal({ isOpen, onClose, targetUserId }: MemosModal
                         <button
                           onClick={() => handleUpdate(memo.id)}
                           disabled={!editTitle.trim() || isSaving}
-                          className="px-5 py-2 bg-slate-600 dark:bg-slate-200 hover:bg-slate-700 dark:hover:bg-white text-white dark:text-slate-800 font-bold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm"
+                          className="px-5 py-2 bg-accent hover:bg-accent/85 text-accent-foreground font-bold rounded-xl shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-sm"
                         >
                           {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                           保存

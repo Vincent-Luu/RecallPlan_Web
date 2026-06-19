@@ -42,13 +42,18 @@ async function exec(query: any): Promise<void> {
  */
 async function execReturning<T = any>(query: any): Promise<T[]> {
   const qb = query;
-  const withReturning = typeof qb.returning === 'function'
-    ? qb.returning()
-    : qb;
-  if (typeof withReturning.run === 'function') {
-    return (await withReturning.run()) as T[];
+  // Callers already chain .returning() — don't call it again.
+  // Prefer .all() because for sql-js, .run() always delegates to sql.js stmt.run()
+  // which returns void even when RETURNING is present in the SQL.
+  // .all() uses stmt.step()/stmt.getAsObject() and correctly collects RETURNING rows.
+  // For neon-http the query is a thenable that auto-executes on await.
+  if (typeof qb.all === 'function') {
+    return (await qb.all()) as T[];
   }
-  return (await withReturning) as T[];
+  if (typeof qb.run === 'function') {
+    return (await qb.run()) as T[];
+  }
+  return (await qb) as T[];
 }
 
 // ---------------------------------------------------------------------------
@@ -141,6 +146,7 @@ export async function insertTask(data: { title: string; tag?: string; userId: nu
       userId: data.userId,
     }).returning({ id: tasks.id }),
   );
+  if (!rows[0]) throw new Error('Failed to insert task: no row returned');
   return rows[0].id;
 }
 

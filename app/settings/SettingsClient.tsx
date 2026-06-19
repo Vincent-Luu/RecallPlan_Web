@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ShieldCheck, ChevronRight, GraduationCap } from "lucide-react";
 import AccountManager from "./AccountManager";
 import PageHeader from "@/app/components/PageHeader";
+import BackgroundBlobs from "@/app/components/BackgroundBlobs";
 
 type UserType = {
   id: number;
@@ -101,10 +102,9 @@ export default function SettingsClient({
 
   // ==================== 共享布局 ====================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-slate-200 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-800 dark:text-slate-200 font-sans relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen page-canvas text-slate-800 dark:text-slate-200 font-sans relative overflow-hidden transition-colors duration-500">
       {/* Background decorations */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-100/40 dark:bg-blue-900/20 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-slate-200/60 dark:bg-slate-800/40 rounded-full blur-3xl pointer-events-none transition-colors duration-700" />
+      <BackgroundBlobs />
 
       <PageHeader backHref="/" title="设置" />
 
@@ -112,7 +112,7 @@ export default function SettingsClient({
         <div className="space-y-4">
           {/* ===== 高考倒计时（全员可见） ===== */}
           {mounted && (
-            <div className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl rounded-[2rem] p-6 shadow-md border border-white dark:border-slate-800 transition-colors duration-500">
+            <div className="bg-white/70 dark:bg-slate-900/60  rounded-[2rem] p-6 shadow-md border border-white dark:border-slate-800 transition-colors duration-500">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-5">
                   <div className="p-3.5 bg-rose-50 dark:bg-rose-500/20 text-rose-500 dark:text-rose-400 rounded-2xl flex-shrink-0">
@@ -136,7 +136,7 @@ export default function SettingsClient({
           {isAdmin && (
             <button
               onClick={() => setActiveSection("account")}
-              className="w-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl rounded-[2rem] p-6 shadow-md border border-white dark:border-slate-800 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 group text-left"
+              className="w-full bg-white/70 dark:bg-slate-900/60  rounded-[2rem] p-6 shadow-md border border-white dark:border-slate-800 hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-300 group text-left"
             >
               <div className="flex items-center gap-5">
                 <div className="p-3.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
